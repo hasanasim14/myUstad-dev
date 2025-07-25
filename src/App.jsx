@@ -12,10 +12,10 @@ import Navbar from "./components/Header";
 import LoginForm from "./components/LoginForm";
 
 // Protects a route unless user has token
-// const ProtectedRoute = ({ children }) => {
-//   const token = localStorage.getItem("token");
-//   return token ? children : <Navigate to="/login" replace />;
-// };
+const ProtectedRoute = ({ children }) => {
+  const token = localStorage.getItem("token");
+  return token ? children : <Navigate to="/login" replace />;
+};
 
 export default function App() {
   const location = useLocation();
@@ -146,24 +146,24 @@ export default function App() {
 
   return (
     <Routes>
-      {/* <Route path="/login" element={<LoginForm />} /> */}
+      <Route path="/login" element={<LoginForm />} />
 
       <Route
         path="/"
-        // element={<ProtectedRoute>{renderMainApp()}</ProtectedRoute>}
-        element={renderMainApp()}
+        element={<ProtectedRoute>{renderMainApp()}</ProtectedRoute>}
+        // element={renderMainApp()}
       />
       <Route
         path="/app"
-        // element={<ProtectedRoute>{renderMainApp()}</ProtectedRoute>}
-        element={renderMainApp()}
+        element={<ProtectedRoute>{renderMainApp()}</ProtectedRoute>}
+        // element={renderMainApp()}
       />
       <Route
         path="/docs"
         element={
-          // <ProtectedRoute>
-          <MarkdownViewer />
-          // </ProtectedRoute>
+          <ProtectedRoute>
+            <MarkdownViewer />
+          </ProtectedRoute>
         }
       />
 
