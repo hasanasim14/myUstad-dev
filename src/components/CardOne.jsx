@@ -685,9 +685,7 @@ const CardOne = ({ selectedDocs, setSelectedDocs, onCollapseChange }) => {
           {/* Header */}
           <div className="card-header">
             {/* <div className="flex items-center justify-between p-2"> */}
-            <span className="title text-lg font-semibold">
-              {criminalLawModules.title}
-            </span>
+            <span className="title text-lg font-semibold">Course Content</span>
             <button
               className="cursor-pointer p-2 m-2 rounded-lg hover:bg-gray-200 text-[#64748b]"
               onClick={toggleCollapse}
@@ -731,7 +729,7 @@ const CardOne = ({ selectedDocs, setSelectedDocs, onCollapseChange }) => {
               ) : (
                 <>
                   <h3 className="px-4 font-medium text-gray-700">
-                    Test Development and Evaluation
+                    {criminalLawModules.title}
                   </h3>
 
                   {criminalLawModules?.modules?.map((module, idx) => {
