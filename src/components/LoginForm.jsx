@@ -25,7 +25,7 @@ export default function LoginForm() {
   const handleLogin = async () => {
     setIsLoading(true);
 
-    const hardcodedUsername = "ShaheedZulfiqarAliBhutto";
+    const hardcodedUsername = "Shaheed Zulfiqar Ali Bhutto";
     const hardcodedPassword = "szabist123";
     const hardcodedEmail = "admin@example.com";
 
