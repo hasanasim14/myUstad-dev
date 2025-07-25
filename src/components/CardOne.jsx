@@ -15,6 +15,7 @@ const CardOne = ({ selectedDocs, setSelectedDocs, onCollapseChange }) => {
   const [openModules, setOpenModules] = useState({});
   // this state variable has been added to store the document that is currently opened
   const [openedDoc, setOpenedDoc] = useState(null);
+  const endpoint = import.meta.env.VITE_API_URL;
 
   // this function has been added to toggle the open state of a module
   const toggleModule = (moduleName) => {
@@ -104,7 +105,7 @@ const CardOne = ({ selectedDocs, setSelectedDocs, onCollapseChange }) => {
             path: "",
             source: "Clarifying the purposes of educational assessment",
             chapter: null,
-            viewpath: "/docs/criminal_introduction (720p).mp4",
+            viewpath: `${endpoint}/video/criminal.mp4`,
           },
         ],
       },

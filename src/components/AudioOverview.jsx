@@ -40,11 +40,6 @@ const AudioOverview = ({ selectedDocs }) => {
           headers: {
             "Content-Type": "application/json",
           },
-          // body: JSON.stringify({
-          //   session_id: sessionId,
-          //   language: selectedLanguage,
-          //   selectedDocs,
-          // }),
         });
 
         if (!response.ok)
