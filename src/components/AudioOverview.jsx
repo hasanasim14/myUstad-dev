@@ -35,16 +35,16 @@ const AudioOverview = ({ selectedDocs }) => {
   const pollForPodcast = (key) => {
     pollingIntervalRef.current = setInterval(async () => {
       try {
-        const response = await fetch(`${endpoint}/podcast/${key}`, {
-          method: "POST",
+        const response = await fetch(`${endpoint}/fetch/podcast/${key}`, {
+          method: "GET",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            session_id: sessionId,
-            language: selectedLanguage,
-            selectedDocs,
-          }),
+          // body: JSON.stringify({
+          //   session_id: sessionId,
+          //   language: selectedLanguage,
+          //   selectedDocs,
+          // }),
         });
 
         if (!response.ok)
