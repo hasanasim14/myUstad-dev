@@ -52,12 +52,23 @@ const CardOne = ({ selectedDocs, setSelectedDocs, onCollapseChange }) => {
   // this function has been added to display the contents of a document when the user clicks on it
   const openDocument = async (doc) => {
     try {
+      const fileType = doc.viewpath.split(".").pop();
+
+      if (fileType === "mp4") {
+        setOpenedDoc({ name: doc.name, content: null, video: doc.viewpath });
+        return;
+      }
+
       const res = await fetch(doc.viewpath);
       const text = await res.text();
-      setOpenedDoc({ name: doc.name, content: text });
+      setOpenedDoc({ name: doc.name, content: text, video: null });
     } catch (error) {
       console.error("Error loading document", error);
-      setOpenedDoc({ name: doc.name, content: "⚠️ Unable to load document." });
+      setOpenedDoc({
+        name: doc.name,
+        content: "⚠️ Unable to load document.",
+        video: null,
+      });
     }
   };
 
@@ -698,10 +709,22 @@ const CardOne = ({ selectedDocs, setSelectedDocs, onCollapseChange }) => {
                       <FiX />
                     </button>
                   </div>
+
                   <div className="mt-2 doc-content">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                      {openedDoc.content}
-                    </ReactMarkdown>
+                    {openedDoc.video ? (
+                      <video
+                        src={openedDoc.video}
+                        className="rounded-lg w-full max-h-64 object-cover"
+                        autoPlay
+                        loop
+                        controls
+                        playsInline
+                      />
+                    ) : (
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {openedDoc.content}
+                      </ReactMarkdown>
+                    )}
                   </div>
                 </div>
               ) : (
