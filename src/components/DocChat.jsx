@@ -3,6 +3,7 @@ import { FaUser, FaRobot } from "react-icons/fa";
 import { Pin, Headphones, Mic, SendHorizonal, Copy } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import "./DocChat.css";
+import remarkGfm from "remark-gfm";
 
 const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }) => {
   const initialBotMessage = {
@@ -284,6 +285,7 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }) => {
               >
                 {typeof msg.text === "string" ? (
                   <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
                     components={{
                       a: ({ node, ...props }) => (
                         <a
@@ -292,6 +294,19 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }) => {
                           rel="noopener noreferrer"
                           className="text-blue-600 underline"
                         />
+                      ),
+                      table: ({ node, ...props }) => (
+                        <table className="table-auto border border-collapse border-gray-300 my-4">
+                          {props.children}
+                        </table>
+                      ),
+                      th: ({ node, ...props }) => (
+                        <th className="border px-4 py-2 bg-gray-100 text-left">
+                          {props.children}
+                        </th>
+                      ),
+                      td: ({ node, ...props }) => (
+                        <td className="border px-4 py-2">{props.children}</td>
                       ),
                     }}
                   >
