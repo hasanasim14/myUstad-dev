@@ -782,29 +782,6 @@ const CardOne = ({ selectedDocs, setSelectedDocs, onCollapseChange }) => {
                       </div>
                     );
                   })}
-
-                  {criminalLawModules.audioOverview && (
-                    <div className="extra-link px-4 py-2 text-blue-600 hover:underline cursor-pointer">
-                      ▶ Audio Overview
-                    </div>
-                  )}
-                  {criminalLawModules.notesAndHighlights && (
-                    <>
-                      <div className="extra-link px-4 py-2 text-blue-600 hover:underline cursor-pointer">
-                        🗒️ Notes and Highlights
-                      </div>
-                      <div className="px-4 py-2">
-                        <video
-                          src="/docs/criminal_introduction (720p).mp4"
-                          className="rounded-lg w-full max-h-64 object-cover"
-                          autoPlay
-                          loop
-                          controls
-                          playsInline
-                        />
-                      </div>
-                    </>
-                  )}
                 </>
               )}
             </div>
