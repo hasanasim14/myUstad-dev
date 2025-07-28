@@ -16,7 +16,7 @@ const ProtectedRoute = ({ children }) => {
 
 export default function App() {
   const location = useLocation();
-  const isMainApp = location.pathname === "/" || location.pathname === "/app";
+  const isMainApp = location.pathname === "/" || location.pathname === "/login";
 
   const [tab, setTab] = useState("content");
   const [selectedDocs, setSelectedDocs] = useState([]);
