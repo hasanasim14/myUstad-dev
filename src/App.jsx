@@ -16,7 +16,7 @@ const ProtectedRoute = ({ children }) => {
 
 export default function App() {
   const location = useLocation();
-  const isMainApp = location.pathname === "/";
+  const isMainApp = location.pathname === "/" || location.pathname === "/app";
 
   const [tab, setTab] = useState("content");
   const [selectedDocs, setSelectedDocs] = useState([]);
@@ -71,6 +71,10 @@ export default function App() {
       };
     }
   };
+
+  if (!isMainApp) {
+    return <MarkdownViewer />;
+  }
 
   const { cardOne, cardTwo, cardThree } = getCardWidths();
 
@@ -147,14 +151,11 @@ export default function App() {
         element={<ProtectedRoute>{renderMainApp()}</ProtectedRoute>}
       />
       <Route
-        path="/docs"
-        element={
-          // <ProtectedRoute>
-          <MarkdownViewer />
-          // </ProtectedRoute>
-        }
+        path="/app"
+        element={<ProtectedRoute>{renderMainApp()}</ProtectedRoute>}
       />
-      {/* <Route path="*" element={<Navigate to="/" />} /> */}
+
+      <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );
 }
