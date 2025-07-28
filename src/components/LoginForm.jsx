@@ -41,7 +41,7 @@ export default function LoginForm() {
         localStorage.setItem("email", hardcodedEmail);
 
         toast.success("Login Successful");
-        navigate("/app");
+        navigate("/");
       } else {
         toast.error("Incorrect username or password");
       }
