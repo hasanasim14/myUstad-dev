@@ -1,17 +1,14 @@
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
-// import LoginPage from "./components/LoginPage";
-import MarkdownViewer from "./components/MarkdownViewer";
-
-// Your main layout components
+import { useLocation } from "react-router-dom";
 import BottomNav from "./components/BottomNav";
 import CardOne from "./components/CardOne";
 import CardTwo from "./components/CardTwo";
 import CardThree from "./components/CardThree";
 import Navbar from "./components/Header";
+import MarkdownViewer from "./components/MarkdownViewer";
+import { Routes, Route, Navigate } from "react-router-dom";
 import LoginForm from "./components/LoginForm";
 
-// Protects a route unless user has token
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem("token");
   return token ? children : <Navigate to="/login" replace />;
@@ -21,7 +18,6 @@ export default function App() {
   const location = useLocation();
   const isMainApp = location.pathname === "/" || location.pathname === "/app";
 
-  // States for your layout
   const [tab, setTab] = useState("content");
   const [selectedDocs, setSelectedDocs] = useState([]);
   const [notes, setNotes] = useState([]);
@@ -81,7 +77,6 @@ export default function App() {
   const renderMainApp = () => (
     <div className="flex flex-col min-h-screen bg-white">
       <Navbar />
-
       {/* Mobile layout */}
       <div className="flex-1 overflow-y-auto md:hidden">
         {tab === "content" && (
@@ -147,16 +142,13 @@ export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<LoginForm />} />
-
       <Route
         path="/"
         element={<ProtectedRoute>{renderMainApp()}</ProtectedRoute>}
-        // element={renderMainApp()}
       />
       <Route
         path="/app"
         element={<ProtectedRoute>{renderMainApp()}</ProtectedRoute>}
-        // element={renderMainApp()}
       />
       <Route
         path="/docs"
@@ -166,8 +158,6 @@ export default function App() {
           </ProtectedRoute>
         }
       />
-
-      {/* fallback */}
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );
