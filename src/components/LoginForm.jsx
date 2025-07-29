@@ -1,53 +1,96 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
-import { toast } from "react-toastify";
 import swirl from "../assets/login-image.jpg";
+import toast from "react-hot-toast";
+// import { toast } from "react-toastify";
 
-export default function LoginForm() {
+export default function AuthForm() {
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({ username: "", password: "" });
-  const [errors, setErrors] = useState({ username: "", password: "" });
+  const [isLoginMode, setIsLoginMode] = useState(true);
+  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [errors, setErrors] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const api_endpoint = import.meta.env.VITE_API_URL;
+
+  // ✅ Simple email format validation
+  const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  useEffect(() => {
+    const isToken = localStorage.getItem("token");
+    if (isToken) {
+      navigate("/");
+    }
+  }, [navigate]);
 
   const handleChange = (e) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
 
-    setErrors((prev) => ({
-      ...prev,
-      [id]: value.trim() === "" ? "This field is required" : "",
-    }));
+    setErrors((prev) => {
+      if (id === "email") {
+        if (value.trim() === "") {
+          return { ...prev, email: "Email is required" };
+        } else if (!isValidEmail(value.trim())) {
+          return { ...prev, email: "Enter a valid email address" };
+        } else {
+          return { ...prev, email: "" };
+        }
+      }
+
+      if (id === "password") {
+        return {
+          ...prev,
+          password: value.trim() === "" ? "Password is required" : "",
+        };
+      }
+
+      return prev;
+    });
   };
 
-  const handleLogin = async () => {
-    setIsLoading(true);
+  const handleSubmit = async () => {
+    // ✅ Prevent submission with empty or invalid inputs
+    if (!formData.email || !formData.password) {
+      toast.error("Please fill in all fields");
+      return;
+    }
 
-    const hardcodedUsername = "Shaheed Zulfiqar Ali Bhutto";
-    const hardcodedPassword = "szabist123";
-    const hardcodedEmail = "admin@example.com";
+    if (!isValidEmail(formData.email)) {
+      setErrors((prev) => ({ ...prev, email: "Enter a valid email address" }));
+      return;
+    }
+
+    setIsLoading(true);
+    const endpoint = isLoginMode ? "/login" : "/register";
 
     try {
-      if (
-        formData.username === hardcodedUsername &&
-        formData.password === hardcodedPassword
-      ) {
-        // Store credentials
-        localStorage.setItem("token", "dummy_token");
-        localStorage.setItem("user_name", hardcodedUsername);
-        localStorage.setItem("user_role", "admin");
-        localStorage.setItem("email", hardcodedEmail);
+      const res = await fetch(`${api_endpoint}${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
 
-        toast.success("Login Successful");
-        navigate("/");
+      const data = await res.json();
+
+      if (res.ok) {
+        if (isLoginMode) {
+          localStorage.setItem("token", data?.access_token);
+          toast.success("Login Sucessful");
+          setTimeout(() => navigate("/"), 1000);
+        } else {
+          toast.success("Registration Successful. Please log in.");
+          setIsLoginMode(true);
+          setFormData({ email: "", password: "" });
+        }
       } else {
-        toast.error("Incorrect username or password");
+        toast.error(data?.message || "Something went wrong. Please try again.");
       }
     } catch (error) {
-      console.error("Login failed:", error);
-      toast.error("Login Failed. Please try again.");
+      console.error("Auth error:", error);
+      toast.error("Request Failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -56,7 +99,7 @@ export default function LoginForm() {
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      handleLogin();
+      handleSubmit();
     }
   };
 
@@ -85,32 +128,34 @@ export default function LoginForm() {
         {/* Right */}
         <div className="w-full lg:w-1/2 p-8 bg-white h-full flex flex-col justify-center rounded-r-xl">
           <h2 className="text-3xl font-bold text-gray-900 mb-4 text-center libre-baskerville-regular">
-            Welcome Back
+            {isLoginMode ? "Welcome Back" : "Create Account"}
           </h2>
           <p className="text-sm text-gray-600 mb-6 text-center libre-baskerville-regular">
-            Enter your username and password to sign in
+            {isLoginMode
+              ? "Enter your credentials to sign in"
+              : "Fill in your details to register"}
           </p>
 
           <div className="space-y-4">
-            {/* Username */}
+            {/* Email */}
             <div>
-              <label htmlFor="username" className="block text-sm font-medium">
-                Username
+              <label htmlFor="email" className="block text-sm font-medium">
+                Email
               </label>
               <input
-                id="username"
+                id="email"
                 type="text"
-                value={formData.username}
+                value={formData.email}
                 onChange={handleChange}
                 className={`mt-1 w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 ${
-                  errors.username
+                  errors.email
                     ? "border-red-500 focus:ring-red-200"
                     : "border-gray-300 focus:ring-gray-200"
                 }`}
-                placeholder="admin"
+                placeholder="example@email.com"
               />
-              {errors.username && (
-                <p className="text-red-500 text-xs mt-1">{errors.username}</p>
+              {errors.email && (
+                <p className="text-red-500 text-xs mt-1">{errors.email}</p>
               )}
             </div>
 
@@ -126,7 +171,7 @@ export default function LoginForm() {
                   value={formData.password}
                   onChange={handleChange}
                   onKeyDown={handleKeyDown}
-                  className={`mt-1 w-full px-3 py-2 pr-10 border rounded-md text-sm focus:outline-none focus:ring-2 ${
+                  className={`mt-1 w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 ${
                     errors.password
                       ? "border-red-500 focus:ring-red-200"
                       : "border-gray-300 focus:ring-gray-200"
@@ -149,11 +194,12 @@ export default function LoginForm() {
             {/* Submit */}
             <button
               type="button"
-              onClick={handleLogin}
+              onClick={handleSubmit}
               disabled={
-                !formData.username ||
+                !formData.email ||
                 !formData.password ||
-                !!errors.username ||
+                !!errors.email ||
+                !!errors.password ||
                 isLoading
               }
               className="w-full bg-black text-white py-2 rounded-md hover:bg-gray-900 transition cursor-pointer"
@@ -161,12 +207,50 @@ export default function LoginForm() {
               {isLoading ? (
                 <span className="flex items-center justify-center gap-2">
                   <Loader2 className="animate-spin" size={18} />
-                  Logging in...
+                  {isLoginMode ? "Logging in..." : "Registering..."}
                 </span>
-              ) : (
+              ) : isLoginMode ? (
                 "Sign In"
+              ) : (
+                "Register"
               )}
             </button>
+
+            {/* Toggle Form Button */}
+            <p className="text-sm text-center mt-2">
+              {isLoginMode ? (
+                <>
+                  Don’t have an account?{" "}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsLoginMode(false);
+                      setFormData({ email: "", password: "" });
+                      setErrors({ email: "", password: "" });
+                    }}
+                    // onClick={() => setIsLoginMode(false)}
+                    className="text-blue-600 underline cursor-pointer"
+                  >
+                    Register here
+                  </button>
+                </>
+              ) : (
+                <>
+                  Already have an account?{" "}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsLoginMode(true);
+                      setFormData({ email: "", password: "" });
+                      setErrors({ email: "", password: "" });
+                    }}
+                    className="text-blue-600 underline cursor-pointer"
+                  >
+                    Login
+                  </button>
+                </>
+              )}
+            </p>
           </div>
         </div>
       </div>
