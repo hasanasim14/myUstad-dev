@@ -15,7 +15,6 @@ export default function AuthForm() {
   const [isLoading, setIsLoading] = useState(false);
   const api_endpoint = import.meta.env.VITE_API_URL;
 
-  // ✅ Simple email format validation
   const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   useEffect(() => {
