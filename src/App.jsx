@@ -8,6 +8,7 @@ import Navbar from "./components/Header";
 import MarkdownViewer from "./components/MarkdownViewer";
 import { Routes, Route, Navigate } from "react-router-dom";
 import LoginForm from "./components/LoginForm";
+import CourseCatalog from "./components/CourseraTiles";
 
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem("token");
@@ -16,7 +17,10 @@ const ProtectedRoute = ({ children }) => {
 
 export default function App() {
   const location = useLocation();
-  const isMainApp = location.pathname === "/" || location.pathname === "/login";
+  const isMainApp =
+    location.pathname === "/" ||
+    location.pathname === "/login" ||
+    location.pathname === "/coursera";
 
   const [tab, setTab] = useState("content");
   const [selectedDocs, setSelectedDocs] = useState([]);
@@ -153,6 +157,14 @@ export default function App() {
       <Route
         path="/app"
         element={<ProtectedRoute>{renderMainApp()}</ProtectedRoute>}
+      />
+      <Route
+        path="/coursera"
+        element={
+          <ProtectedRoute>
+            <CourseCatalog />
+          </ProtectedRoute>
+        }
       />
 
       <Route path="*" element={<Navigate to="/" />} />
