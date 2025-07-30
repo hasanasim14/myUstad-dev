@@ -425,7 +425,8 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
                 </div>
               )}
               {/* Starting onwards here is the code of when the notes get created whenn you click on the add a note button and the functionality of it being edittable */}
-              <div className="notes-scroll-container border-t border-gray-200 px-1 py-4">
+              <div className="notes-scroll-container border-t border-gray-200 px-1 py-4 lg:h-[350px] overflow-y-auto">
+                {/* <div className="notes-scroll-container border-t border-gray-200 px-1 py-4 md:h-[10px] lg:h-[350px]"> */}
                 {notes?.map((note, index) => (
                   <div
                     key={index}
