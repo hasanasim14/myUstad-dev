@@ -424,7 +424,7 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote, setIsLoading }) => {
 
       <div className="flex pr-4">
         <input
-          // className="w-[100]"
+          className="chat-message-input"
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}

@@ -32,6 +32,7 @@
     "slugify": "^1.6.6",
     "string-similarity": "^4.0.4",
     "svg-pan-zoom": "^3.6.2",
+    "tailwind-merge": "^3.3.1",
     "tailwindcss": "^4.1.11"
   },
   "devDependencies": {

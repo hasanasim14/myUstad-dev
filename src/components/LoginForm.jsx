@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import swirl from "../assets/login-image.jpg";
 import toast from "react-hot-toast";
+import { Input } from "./ui/input";
 // import { toast } from "react-toastify";
 
 export default function AuthForm() {
@@ -141,18 +142,19 @@ export default function AuthForm() {
               <label htmlFor="email" className="block text-sm font-medium">
                 Email
               </label>
-              <input
+              <Input
                 id="email"
                 type="text"
                 value={formData.email}
                 onChange={handleChange}
-                className={`mt-1 w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 ${
+                className={`w-full ${
                   errors.email
                     ? "border-red-500 focus:ring-red-200"
-                    : "border-gray-300 focus:ring-gray-200"
+                    : "border-gray-300 focus:ring-blue-200"
                 }`}
                 placeholder="example@email.com"
               />
+
               {errors.email && (
                 <p className="text-red-500 text-xs mt-1">{errors.email}</p>
               )}
@@ -164,19 +166,19 @@ export default function AuthForm() {
                 Password
               </label>
               <div className="relative">
-                <input
+                <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
                   value={formData.password}
                   onChange={handleChange}
                   onKeyDown={handleKeyDown}
-                  className={`mt-1 w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 ${
+                  className={`w-full ${
                     errors.password
                       ? "border-red-500 focus:ring-red-200"
-                      : "border-gray-300 focus:ring-gray-200"
+                      : "border-gray-300 focus:ring-blue-200"
                   }`}
-                  placeholder="••••••••"
                 />
+
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
