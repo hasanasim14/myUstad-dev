@@ -91,7 +91,10 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote, setIsLoading }) => {
       console.log("the endpoint being called is", `${endpoint}/generate-audio`);
       const response = await fetch(`${endpoint}/generate-audio/`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `bearer ${localStorage.getItem("token")}`,
+        },
         body: JSON.stringify({ text }),
       });
 
@@ -155,6 +158,10 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote, setIsLoading }) => {
           try {
             const response = await fetch(`${endpoint}/transcribe`, {
               method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `bearer ${localStorage.getItem("token")}`,
+              },
               body: formData,
             });
 
@@ -247,7 +254,10 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote, setIsLoading }) => {
         console.log("Selected Docs being sent:", selectedDocs);
         response = await fetch(`${endpoint}/query_with_filter`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `bearer ${localStorage.getItem("token")}`,
+          },
           body: JSON.stringify(filterpayload),
         });
       }
