@@ -1,17 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./CardThree.css";
-import {
-  FiChevronRight,
-  FiInfo,
-  FiHeadphones,
-  FiChevronLeft,
-} from "react-icons/fi";
+import { FiChevronRight, FiHeadphones, FiChevronLeft } from "react-icons/fi";
 import ReactMarkdown from "react-markdown";
 import AudioOverview from "./AudioOverview";
 import axios from "axios";
 import MindmapModal from "./MindmapModal";
 import {
-  ChevronRight,
   Edit,
   FileText,
   GraduationCap,
@@ -40,7 +34,6 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
   const [mindmapOpen, setMindmapOpen] = useState(false);
   const [mindmapMarkdown, setMindmapMarkdown] = useState("");
   const [isCollapsed, setIsCollapsed] = useState(false);
-
   const endpoint = import.meta.env.VITE_API_URL;
 
   // better formatting for markdown
@@ -60,6 +53,28 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
     { label: "Mind Map", icon: Network },
   ];
 
+  useEffect(() => {
+    fetchNotes();
+  }, []);
+
+  const fetchNotes = async () => {
+    const authToken = localStorage.getItem("token");
+    try {
+      const res = await fetch(`${endpoint}/get-notes`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `bearer ${authToken}`,
+        },
+      });
+
+      const data = await res.json();
+      setNotes(data?.data);
+    } catch (error) {
+      console.error("Error fetching notes:", error);
+    }
+  };
+
   // function added to fetch the mindmap from the backend when the user clicks on the Mind Map button
   const fetchMindmap = async () => {
     setLoading(true);
@@ -68,7 +83,6 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
         selectedDocs: selectedDocs,
       });
 
-      console.log("Mindmap response:", response.data);
       const markdownContent = response.data.markdown || "No mindmap available.";
 
       const newMindmapNote = {
@@ -78,11 +92,9 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
         type: "mindmap",
       };
 
-      setNotes((prevNotes) => [...prevNotes, newMindmapNote]);
-
-      //
       setMindmapMarkdown(markdownContent);
       setMindmapOpen(true);
+      await fetchNotes(); // Refresh notes from server
     } catch (error) {
       console.error(
         "Error generating mindmap",
@@ -109,7 +121,10 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
     try {
       const response = await fetch(`${endpoint}/generate-audio/`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `bearer ${localStorage.getItem("token")}`,
+        },
         body: JSON.stringify({ text }),
       });
 
@@ -141,11 +156,12 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
   // function added to handle the addition of a manual note when the user clicks on Add a Note button
   const handleAddNote = () => {
     const newNote = {
-      title: `Note ${notes.length + 1}`,
-      content: "New note content...",
+      Title: `New Note`,
+      Response: "New note content...",
       editable: true,
     };
-    setNotes([...notes, newNote]);
+    // setNotes([...notes, newNote]);
+    setNotes([newNote, ...notes]);
   };
 
   // function added for showing the menu when the user clicks on the three dot icon on a manually added note. that shows the delete option
@@ -187,16 +203,19 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
   // function added that handles the click on a note, if the note is a mindmap, it opens the mindmap modal, if the note is editable, it opens the edit modal, otherwise it opens the view-only modal
   const handleNoteClick = (index) => {
     const note = notes[index];
+
+    console.log("notes,", note);
+
     if (note.type === "mindmap") {
-      setMindmapMarkdown(note.content);
+      setMindmapMarkdown(note.Response);
       setMindmapOpen(true);
       return;
     }
     if (note.editable) {
       // open edit modal
       setCurrentEditNoteIndex(index);
-      setEditTitle(note.title);
-      setEditContent(note.content);
+      setEditTitle(note.Title);
+      setEditContent(note.Response);
       setIsEditModalOpen(true);
     } else {
       // open view-only modal
@@ -206,15 +225,40 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
   };
 
   // function added that handles the edit made to a manually added note in the modal
-  const handleSaveEdit = () => {
-    const updatedNotes = [...notes];
-    updatedNotes[currentEditNoteIndex] = {
-      ...updatedNotes[currentEditNoteIndex],
+  const handleSaveEdit = async () => {
+    const updatedNote = {
       title: editTitle,
-      content: editContent,
+      note: editContent,
     };
-    setNotes(updatedNotes);
-    setIsEditModalOpen(false);
+
+    try {
+      const authToken = localStorage.getItem("token");
+      const res = await fetch(`${endpoint}/save-note`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `bearer ${authToken}`,
+        },
+        body: JSON.stringify(updatedNote),
+      });
+
+      if (!res.ok) throw new Error("Save failed");
+
+      // Set editable to false after successful save
+      const newNotes = [...notes];
+      newNotes[currentEditNoteIndex] = {
+        ...newNotes[currentEditNoteIndex],
+        Title: editTitle,
+        Response: editContent,
+        editable: false,
+      };
+      setNotes(newNotes);
+
+      await fetchNotes(); // Refresh with server copy
+      setIsEditModalOpen(false);
+    } catch (error) {
+      console.error("Failed to save note:", error);
+    }
   };
 
   const handleFetchAndAddNote = async (type) => {
@@ -231,11 +275,17 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
     setLoading(true);
 
     try {
+      const authToken = localStorage.getItem("token");
+      const wrappedDocs = { selectedDocs };
+
       // Fetch content
       const contentResponse = await fetch(contentEndpoint, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ selectedDocs }),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `bearer ${authToken}`,
+        },
+        body: JSON.stringify(wrappedDocs),
       });
       if (!contentResponse.ok)
         throw new Error(`Content API error: ${contentResponse.status}`);
@@ -245,20 +295,20 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
       const titleResponse = await fetch(titleEndpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type, selectedDocs }),
+        body: JSON.stringify({ type, ...wrappedDocs }),
       });
       if (!titleResponse.ok)
         throw new Error(`Title API error: ${titleResponse.status}`);
       const rawTitle = await titleResponse.text();
       const titleData = rawTitle.replace(/^"(.*)"$/, "$1");
-      console.log(`Dynamic title for ${type}:`, titleData);
+
       const newNote = {
         title: titleData,
         content: content || "No content available.",
         editable: false,
       };
 
-      setNotes((prev) => [...prev, newNote]);
+      await fetchNotes();
     } catch (error) {
       console.error(`Failed to fetch ${type}:`, error);
     } finally {
@@ -376,15 +426,15 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
               )}
               {/* Starting onwards here is the code of when the notes get created whenn you click on the add a note button and the functionality of it being edittable */}
               <div className="notes-scroll-container border-t border-gray-200 px-1 py-4">
-                {notes.map((note, index) => (
+                {notes?.map((note, index) => (
                   <div
                     key={index}
                     className="note-text-block border border-gray-100 rounded-lg mb-3"
-                    onClick={() => handleNoteClick(index)} // ✅ Add this line
+                    onClick={() => handleNoteClick(index)}
                     style={{
                       position: "relative",
                       cursor: "pointer",
-                      minHeight: "40px",
+                      minHeight: "20px",
                       maxHeight: "55px",
                       overflow: "hidden",
                       paddingBottom: "10px",
@@ -412,7 +462,7 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
                           verticalAlign: "middle",
                         }}
                       >
-                        {note.title}
+                        {note.Title}
                       </span>
 
                       <div className="flex items-center gap-3">
@@ -420,7 +470,7 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
                           className="bg-transparent cursor-pointer"
                           onClick={(e) => {
                             e.stopPropagation();
-                            playNoteAudioFromAPI(note.content, index);
+                            playNoteAudioFromAPI(note.Response, index);
                           }}
                           style={{
                             color:
@@ -503,12 +553,12 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
                             ),
                           }}
                         >
-                          {note.content}
+                          {note.Response}
                         </ReactMarkdown>
                       ) : (
                         <div>
                           {" "}
-                          {note.content
+                          {(note.Response || "")
                             .replace(/\\n/g, "\n")
                             .replace(/^"(.*)"$/, "$1")
                             .replace(/^["']|["']$/g, "")
@@ -640,7 +690,7 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
                     zIndex: 1,
                   }}
                 >
-                  <h3 style={{ margin: 0 }}>{currentViewNote.title}</h3>
+                  <h3 style={{ margin: 0 }}>{currentViewNote.Title}</h3>
                   <button
                     onClick={() => setIsViewModalOpen(false)}
                     style={{
@@ -662,7 +712,7 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
                     remarkPlugins={[remarkGfm]}
                     components={renderers}
                   >
-                    {currentViewNote.content
+                    {(currentViewNote.Response || "")
                       .replace(/\\n/g, "\n")
                       .replace(/^"(.*)"$/, "$1")
                       .replace(/^["']|["']$/g, "")}

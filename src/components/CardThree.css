@@ -133,7 +133,8 @@
   color: black;
 }
 .notes-scroll-container {
-  max-height: 410px;
+  /* max-height: 410px; */
+  height: 100px;
   overflow-y: auto;
   padding-right: 8px;
   margin-top: 12px;

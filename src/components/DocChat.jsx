@@ -5,7 +5,7 @@ import ReactMarkdown from "react-markdown";
 import "./DocChat.css";
 import remarkGfm from "remark-gfm";
 
-const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }) => {
+const DocChat = ({ selectedDocs, refreshTrigger, onPinNote, setIsLoading }) => {
   const initialBotMessage = {
     from: "bot",
     text: "Hi there! I'm StudyBot, your AI study assistant. How can I help you today?",
@@ -28,8 +28,50 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }) => {
 
   const endpoint = import.meta.env.VITE_API_URL;
 
+  // check for session id for get chat api
   useEffect(() => {
-    setMessages([initialBotMessage]);
+    const sessionId = localStorage.getItem("session_id");
+
+    if (!sessionId) {
+      setMessages([initialBotMessage]);
+      return;
+    }
+
+    const fetchChats = async () => {
+      try {
+        const response = await fetch(`${endpoint}/get-chats/${sessionId}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `bearer ${localStorage.getItem("token")}`,
+          },
+        });
+
+        if (!response.ok) throw new Error("Failed to fetch chat history");
+
+        const data = await response.json();
+
+        if (data.success && Array.isArray(data.data)) {
+          const formattedMessages = data.data.map((item) => ({
+            from: item.type.toLowerCase() === "user" ? "user" : "bot",
+            text: item.content,
+            time: new Date(item.ts).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+          }));
+
+          setMessages((prev) => [initialBotMessage, ...formattedMessages]);
+        } else {
+          setMessages([initialBotMessage]);
+        }
+      } catch (err) {
+        console.error("Error fetching chats:", err);
+        setMessages([initialBotMessage]);
+      }
+    };
+
+    fetchChats();
   }, [refreshTrigger]);
 
   const playNoteAudioFromAPI = async (text, index) => {
@@ -154,6 +196,7 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }) => {
 
     setMessages((prev) => [...prev, userMessage, loadingMessage]);
     setInput("");
+    setIsLoading(true);
 
     try {
       const conversationHistory = [];
@@ -173,7 +216,7 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }) => {
         answer: null,
       });
 
-      const sessionId = sessionStorage.getItem("session_id") || "";
+      const sessionId = localStorage.getItem("session_id") || "";
 
       const payload = {
         question: userInput,
@@ -194,7 +237,10 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }) => {
       if (!selectedDocs || selectedDocs.length === 0) {
         response = await fetch(`${endpoint}/ask`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `bearer ${localStorage.getItem("token")}`,
+          },
           body: JSON.stringify(payload),
         });
       } else {
@@ -209,7 +255,7 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }) => {
       const data = await response.json();
 
       if (data.session_id) {
-        sessionStorage.setItem("session_id", data.session_id);
+        localStorage.setItem("session_id", data.session_id);
       }
 
       console.log("Session Id:", data.session_id);
@@ -245,6 +291,8 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote }) => {
           },
         ];
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
