@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import "./CardThree.css";
 import { FiChevronRight, FiHeadphones, FiChevronLeft } from "react-icons/fi";
 import ReactMarkdown from "react-markdown";
@@ -14,6 +14,7 @@ import {
   Plus,
 } from "lucide-react";
 import remarkGfm from "remark-gfm";
+import { Button } from "./ui/button";
 
 const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
   // const [notes, setNotes] = useState([]);
@@ -35,8 +36,6 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
   const [mindmapMarkdown, setMindmapMarkdown] = useState("");
   const [isCollapsed, setIsCollapsed] = useState(false);
   const endpoint = import.meta.env.VITE_API_URL;
-
-  console.log("the notes", notes);
 
   // better formatting for markdown
   const renderers = {
@@ -77,11 +76,12 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
     }
   };
 
+  console.log("the selected docs are", selectedDocs);
+
   // function added to fetch the mindmap from the backend when the user clicks on the Mind Map button
   const fetchMindmap = async () => {
     setLoading(true);
     const authToken = localStorage.getItem("token");
-    console.log("the token", authToken);
     try {
       const response = await axios.post(
         `${endpoint}/generate-mindmap`,
@@ -224,8 +224,6 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
   // function added that handles the click on a note, if the note is a mindmap, it opens the mindmap modal, if the note is editable, it opens the edit modal, otherwise it opens the view-only modal
   const handleNoteClick = (index) => {
     const note = notes[index];
-
-    console.log("notes,", note);
 
     if (note.type === "mindmap") {
       setMindmapMarkdown(note.Response);
@@ -412,7 +410,8 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
 
               <div className="flex flex-wrap gap-2 justify-center max-w-md mx-auto">
                 {noteTypes.map(({ label, icon: Icon }) => (
-                  <button
+                  <Button
+                    disabled={!selectedDocs.length}
                     key={label}
                     className="library-button w-[calc(50%-4px)]"
                     onClick={() => {
@@ -425,7 +424,8 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
                   >
                     <Icon className="mr-2 h-4 w-4" />
                     {label}
-                  </button>
+                  </Button>
+                  // <Button
                 ))}
               </div>
 
@@ -445,7 +445,6 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
                   Generating...
                 </div>
               )}
-              {console.log("the notes are s", notes)}
               {/* Starting onwards here is the code of when the notes get created whenn you click on the add a note button and the functionality of it being edittable */}
               <div className="notes-scroll-container border-t border-gray-200 px-1 py-4 lg:h-[350px] overflow-y-auto">
                 {/* <div className="notes-scroll-container border-t border-gray-200 px-1 py-4 md:h-[10px] lg:h-[350px]"> */}
