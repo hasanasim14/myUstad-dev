@@ -38,18 +38,6 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
         <div className="flex items-center space-x-6">
           <span className="text-2xl font-bold tracking-wide">myUstad.ai</span>
-
-          {!isMobile && (
-            <div className="flex-grow mx-6">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="What do you want to learn?"
-                className="w-[20vw] max-w-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-gray-400 text-sm"
-              />
-            </div>
-          )}
         </div>
 
         {!isMobile && (
