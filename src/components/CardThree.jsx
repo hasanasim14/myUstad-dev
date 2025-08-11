@@ -3,7 +3,6 @@ import "./CardThree.css";
 import { FiChevronRight, FiHeadphones, FiChevronLeft } from "react-icons/fi";
 import ReactMarkdown from "react-markdown";
 import AudioOverview from "./AudioOverview";
-import axios from "axios";
 import MindmapModal from "./MindmapModal";
 import {
   Edit,
@@ -17,7 +16,6 @@ import remarkGfm from "remark-gfm";
 import { Button } from "./ui/button";
 
 const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
-  // const [notes, setNotes] = useState([]);
   const [menuOpenIndex, setMenuOpenIndex] = useState(null);
   const menuRef = useRef(null);
   const modalRef = useRef(null);
@@ -35,6 +33,7 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
   const [mindmapOpen, setMindmapOpen] = useState(false);
   const [mindmapMarkdown, setMindmapMarkdown] = useState("");
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const abortControllers = useRef({});
   const endpoint = import.meta.env.VITE_API_URL;
 
   // better formatting for markdown
@@ -76,8 +75,6 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
     }
   };
 
-  console.log("the selected docs are", selectedDocs);
-
   // function added to fetch the mindmap from the backend when the user clicks on the Mind Map button
   const fetchMindmap = async () => {
     setLoading(true);
@@ -117,7 +114,16 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
 
   // function added to play the audio of the note content when the user clicks on the headphone icon
   const playNoteAudioFromAPI = async (text, index) => {
-    setClickedIndex(index);
+    if (clickedIndex === index && !playingIndex) {
+      const controller = abortControllers.current[index];
+      if (controller) {
+        controller.abort();
+        delete abortControllers.current[index];
+      }
+      setClickedIndex(null);
+      return;
+    }
+
     if (playingIndex === index) {
       if (audioRef.current) {
         audioRef.current.pause();
@@ -128,28 +134,35 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
       return;
     }
 
+    const controller = new AbortController();
+    abortControllers.current[index] = controller;
+    setClickedIndex(index);
+
     try {
       const response = await fetch(`${endpoint}/generate-audio/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify({ text }),
+        signal: controller.signal,
       });
+
+      if (!response.ok) {
+        throw new Error(`API call failed with status ${response.status}`);
+      }
 
       const audioBlob = await response.blob();
       const audioUrl = URL.createObjectURL(audioBlob);
       const audio = new Audio(audioUrl);
       audioRef.current = audio;
 
-      // Once audio starts, show green
       audio.onplay = () => {
         setPlayingIndex(index);
         setClickedIndex(null);
       };
 
-      // On end, revert to black
       audio.onended = () => {
         setPlayingIndex(null);
         setClickedIndex(null);
@@ -157,9 +170,15 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
 
       await audio.play();
     } catch (error) {
-      console.error("Audio playback failed:", error);
+      if (error.name === "AbortError") {
+        console.log("Fetch aborted");
+      } else {
+        console.error("Audio playback failed:", error);
+      }
       setPlayingIndex(null);
       setClickedIndex(null);
+    } finally {
+      delete abortControllers.current[index];
     }
   };
 
@@ -348,7 +367,6 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
   };
 
   return (
-    // <div className="h-[85vh] md:border md:rounded-lg border-gray-200">
     <div
       className={`h-[85vh] md:border md:rounded-lg border-gray-200 transition-all duration-300 ease-in-out overflow-hidden ml-auto ${
         isCollapsed ? "w-15" : "w-full"
@@ -356,25 +374,19 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
     >
       {isCollapsed ? (
         <div className="flex justify-center p-3 border-b border-gray-200">
-          {/* // <div className="flex justify-end p-2"> */}
           <button
             className="cursor-pointer p-2 rounded-lg hover:bg-gray-200 text-[#64748b]"
             onClick={toggleCollapse}
           >
-            {/* <ChevronRight /> */}
             <FiChevronLeft />
-            {/* {isCollapsed ? <FiChevronRight /> : <FiChevronLeft />} */}
           </button>
         </div>
       ) : (
         <>
           <div className="card-header">
-            {/* <div className="flex justify-center pt-4"> */}
             <span className="title">Library</span>
-            {/* <span className="icon"> */}
             <button
               className="cursor-pointer p-2 m-2 rounded-lg hover:bg-gray-200 text-[#64748b]"
-              // onClick={() => setIsCollapsed((prev) => (prev === 1 ? 0 : 1))}
               onClick={toggleCollapse}
             >
               <FiChevronRight />
@@ -386,9 +398,9 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
             <AudioOverview selectedDocs={selectedDocs} />
 
             <div className="notes-section">
-              <span className="section-title" style={{ fontSize: "13px" }}>
+              {/* <span className="section-title" style={{ fontSize: "13px" }}>
                 Notes
-              </span>
+              </span> */}
               <button
                 className="library-button w-full mb-2"
                 onClick={handleAddNote}
@@ -414,7 +426,6 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
                     <Icon className="mr-2 h-4 w-4" />
                     {label}
                   </Button>
-                  // <Button
                 ))}
               </div>
 
@@ -436,7 +447,6 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
               )}
               {/* Starting onwards here is the code of when the notes get created whenn you click on the add a note button and the functionality of it being edittable */}
               <div className="notes-scroll-container border-t border-gray-200 px-1 py-4 lg:h-[350px] overflow-y-auto">
-                {/* <div className="notes-scroll-container border-t border-gray-200 px-1 py-4 md:h-[10px] lg:h-[350px]"> */}
                 {notes?.map((note, index) => (
                   <div
                     key={index}
@@ -453,18 +463,10 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
                       paddingLeft: "10px",
                     }}
                   >
-                    {/* <div
-                      className="note-text-title"
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        // alignItems: "center",
-                      }}
-                    > */}
                     <div className="flex justify-between items-center pb-2 font-semibold">
                       <span
+                        className="text-sm"
                         style={{
-                          // fontSize: "13px",
                           whiteSpace: "nowrap",
                           overflow: "hidden",
                           textOverflow: "ellipsis",
