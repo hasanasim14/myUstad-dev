@@ -81,41 +81,30 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
   // function added to fetch the mindmap from the backend when the user clicks on the Mind Map button
   const fetchMindmap = async () => {
     setLoading(true);
-    const authToken = localStorage.getItem("token");
-    try {
-      const response = await axios.post(
-        `${endpoint}/generate-mindmap`,
-        {
-          selectedDocs: selectedDocs,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${authToken}`,
-          },
-        }
-      );
 
-      // const response = await fetch(`${endpoint}/generate-mindmap`,{
-      //   method:"POST",
-      //   headers{
-      //     "Content-Type":"application/json",
-      //     Authorization:`Bearer ${localStorage.getItem("token")}`
-      //   },
-      //   body:JSON.stringify({selected})
-      // })
+    try {
+      const response = await fetch(`${endpoint}/generate-mindmap`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ selectedDocs }),
+      });
 
       const markdownContent = response.data.markdown || "No mindmap available.";
 
       const newMindmapNote = {
-        title: "Mind Map",
-        content: markdownContent,
+        Title: "Mind Map",
+        Response: markdownContent,
         editable: false,
         type: "mindmap",
       };
 
+      setNotes((prevNotes) => [newMindmapNote, ...prevNotes]);
       setMindmapMarkdown(markdownContent);
       setMindmapOpen(true);
-      await fetchNotes(); // Refresh notes from server
+      await fetchNotes();
     } catch (error) {
       console.error(
         "Error generating mindmap",
