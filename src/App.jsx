@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import BottomNav from "./components/BottomNav";
 import CardOne from "./components/CardOne";
 import CardTwo from "./components/CardTwo";
 import CardThree from "./components/CardThree";
 import Navbar from "./components/Header";
 import MarkdownViewer from "./components/MarkdownViewer";
-import { Routes, Route, Navigate } from "react-router-dom";
 import LoginForm from "./components/LoginForm";
 import CourseCatalog from "./components/CourseCatalog";
 
