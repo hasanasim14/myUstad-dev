@@ -73,7 +73,7 @@ export default function CourseCatalog() {
             Start, switch, or advance your career with more than 5,000 courses
             from world-class universities and companies.
           </p>
-          <div className="max-w-md mx-auto relative">
+          {/* <div className="max-w-md mx-auto relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <Input
               type="text"
@@ -82,7 +82,7 @@ export default function CourseCatalog() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-          </div>
+          </div> */}
         </div>
       </section>
 
