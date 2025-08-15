@@ -280,6 +280,7 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
     }
   };
 
+  // removed the get-note-title api
   const handleFetchAndAddNote = async (type) => {
     let contentEndpoint = "";
 
@@ -288,8 +289,6 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
       contentEndpoint = `${endpoint}/briefing-doc`;
     else if (type === "FAQ") contentEndpoint = `${endpoint}/faq`;
     else return;
-
-    const titleEndpoint = `${endpoint}/get-note-title`;
 
     setLoading(true);
 
@@ -306,23 +305,14 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
         },
         body: JSON.stringify(wrappedDocs),
       });
+
       if (!contentResponse.ok)
         throw new Error(`Content API error: ${contentResponse.status}`);
+
       const content = await contentResponse.text();
 
-      // Fetch dynamic title
-      const titleResponse = await fetch(titleEndpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type, ...wrappedDocs }),
-      });
-      if (!titleResponse.ok)
-        throw new Error(`Title API error: ${titleResponse.status}`);
-      const rawTitle = await titleResponse.text();
-      const titleData = rawTitle.replace(/^"(.*)"$/, "$1");
-
       const newNote = {
-        Title: titleData,
+        Title: type, // Fallback to using the type as title
         content: content || "No content available.",
         editable: false,
       };
