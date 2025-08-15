@@ -16,7 +16,7 @@ import Navbar from "./Header";
 const courses = [
   {
     id: 1,
-    title: "Test Development and Evaluation",
+    title: "Criminal Law",
     // instructor: "Andrew Ng",
     // university: "Stanford University",
     // rating: 4.9,
