@@ -16,8 +16,6 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote, setIsLoading }) => {
     }),
   };
 
-  console.log("I am receiving the pinned note here", onPinNote);
-
   const [messages, setMessages] = useState([initialBotMessage]);
   const [input, setInput] = useState("");
   const [clickedIndex, setClickedIndex] = useState(null);

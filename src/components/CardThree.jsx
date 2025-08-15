@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import "./CardThree.css";
 import { FiChevronRight, FiChevronLeft } from "react-icons/fi";
 import ReactMarkdown from "react-markdown";
@@ -6,19 +6,15 @@ import AudioOverview from "./AudioOverview";
 import MindmapModal from "./MindmapModal";
 import {
   Edit,
-  EllipsisVertical,
   FileText,
   GraduationCap,
   Headphones,
   MessageSquareText,
   Network,
   Plus,
-  Trash,
 } from "lucide-react";
 import remarkGfm from "remark-gfm";
 import { Button } from "./ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import toast from "react-hot-toast";
 
 const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
   const [menuOpenIndex, setMenuOpenIndex] = useState(null);
@@ -199,28 +195,6 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
       editable: true,
     };
     setNotes([newNote, ...notes]);
-  };
-
-  // function added to perform the functionality of deleting a manually added note
-  const handleDeleteNote = async (docKey, indexToDelete) => {
-    const updatedNotes = notes.filter((_, i) => i !== indexToDelete);
-    try {
-      const response = await fetch(`${endpoint}/remove-note`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({ docKey: docKey }),
-      });
-      if (response.ok) {
-        setNotes(updatedNotes);
-        toast.success("Note Deleted!");
-      }
-    } catch (error) {
-      console.error("error deleting the note", error);
-      toast.error("Error deleting the note. Please try again later");
-    }
   };
 
   // this has been added to automatically close the menu showing the delete option when the user clicks outside anywhere on the screen
@@ -489,40 +463,6 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
                         >
                           <Headphones className="w-4 h-4" />
                         </button>
-
-                        {/* Delete button popover */}
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <Button
-                              className="p-0"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                              }}
-                            >
-                              <EllipsisVertical className="w-4 h-4" />
-                            </Button>
-                          </PopoverTrigger>
-                          <PopoverContent
-                            className="bg-white w-35 p-1 rounded-lg border text-white border-gray-200"
-                            align="end"
-                            sideOffset={8}
-                          >
-                            <div className="grid gap-0.5">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="justify-start gap-2 px-3 py-2 h-8 text-sm text-red-500 hover:bg-red-200 hover:text-red-500"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDeleteNote(note.docKey, index);
-                                }}
-                              >
-                                <Trash className="h-3.5 w-3.5 text-red-500" />
-                                <span>Delete</span>
-                              </Button>
-                            </div>
-                          </PopoverContent>
-                        </Popover>
                       </div>
                     </div>
                     <div className="mt-0 text-[#555] text-xs">
