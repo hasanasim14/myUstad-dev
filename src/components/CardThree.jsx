@@ -106,10 +106,11 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
       };
 
       // Just add it to notes like others
-      setNotes((prev) => [newMindmapNote, ...prev]);
+      setMindmapMarkdown(markdownContent);
+      setMindmapOpen(true);
 
       // Refresh from backend after short delay to ensure it's saved
-      setTimeout(fetchNotes, 500);
+      // setTimeout(fetchNotes, 500);
     } catch (error) {
       console.error("Error generating mindmap:", error);
     } finally {
@@ -225,11 +226,12 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
   const handleNoteClick = (index) => {
     const note = notes[index];
 
-    if (note.type === "mindmap") {
+    if (note.docType === "mindmap") {
       setMindmapMarkdown(note.Response);
       setMindmapOpen(true);
       return;
     }
+
     if (note.editable) {
       // open edit modal
       setCurrentEditNoteIndex(index);
