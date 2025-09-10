@@ -43,7 +43,7 @@ const Chat = ({ refreshTrigger, onPinNote }) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `bearer ${localStorage.getItem("token")}`,
+          Authorization: `bearer ${localStorage.getItem("s_tok")}`,
         },
         body: JSON.stringify({ text }),
       });
@@ -125,7 +125,7 @@ const Chat = ({ refreshTrigger, onPinNote }) => {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
-                Authorization: `bearer ${localStorage.getItem("token")}`,
+                Authorization: `bearer ${localStorage.getItem("s_tok")}`,
               },
               body: formData,
             });
@@ -201,7 +201,7 @@ const Chat = ({ refreshTrigger, onPinNote }) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `bearer ${localStorage.getItem("token")}`,
+          Authorization: `bearer ${localStorage.getItem("s_tok")}`,
         },
         body: JSON.stringify(payload),
       });

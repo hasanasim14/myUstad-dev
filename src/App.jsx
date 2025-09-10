@@ -11,7 +11,7 @@ import LoginForm from "./components/LoginForm";
 import CourseCatalog from "./components/CourseCatalog";
 
 const ProtectedRoute = ({ children }) => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("s_tok");
   return token ? children : <Navigate to="/login" replace />;
 };
 
@@ -47,12 +47,11 @@ export default function App() {
 
     // saving note before sending
     try {
-      const authToken = localStorage.getItem("token");
       const res = await fetch(`${endpoint}/save-note`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `bearer ${authToken}`,
+          Authorization: `bearer ${localStorage.getItem("s_tok")}`,
         },
         body: JSON.stringify({
           title: newNote.Title,

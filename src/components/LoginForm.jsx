@@ -19,7 +19,7 @@ export default function AuthForm() {
   const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   useEffect(() => {
-    const isToken = localStorage.getItem("token");
+    const isToken = localStorage.getItem("s_tok");
     if (isToken) {
       navigate("/courses");
     }
@@ -77,7 +77,7 @@ export default function AuthForm() {
 
       if (res.ok) {
         if (isLoginMode) {
-          localStorage.setItem("token", data?.access_token);
+          localStorage.setItem("s_tok", data?.access_token);
           toast.success("Login Successful");
           setTimeout(() => navigate("/courses"), 1000);
         } else {

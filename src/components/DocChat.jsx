@@ -46,7 +46,7 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote, setIsLoading }) => {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `bearer ${localStorage.getItem("token")}`,
+            Authorization: `bearer ${localStorage.getItem("s_tok")}`,
           },
         });
 
@@ -108,7 +108,7 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote, setIsLoading }) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${localStorage.getItem("s_tok")}`,
         },
         body: JSON.stringify({ text }),
         signal: controller.signal,
@@ -185,7 +185,7 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote, setIsLoading }) => {
             const response = await fetch(`${endpoint}/transcribe`, {
               method: "POST",
               headers: {
-                Authorization: `bearer ${localStorage.getItem("token")}`,
+                Authorization: `bearer ${localStorage.getItem("s_tok")}`,
               },
               body: formData,
             });
@@ -270,7 +270,7 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote, setIsLoading }) => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `bearer ${localStorage.getItem("token")}`,
+            Authorization: `bearer ${localStorage.getItem("s_tok")}`,
           },
           body: JSON.stringify(payload),
         });
@@ -279,7 +279,7 @@ const DocChat = ({ selectedDocs, refreshTrigger, onPinNote, setIsLoading }) => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `bearer ${localStorage.getItem("token")}`,
+            Authorization: `bearer ${localStorage.getItem("s_tok")}`,
           },
           body: JSON.stringify(filterpayload),
         });

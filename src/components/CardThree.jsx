@@ -59,13 +59,12 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
   }, []);
 
   const fetchNotes = async () => {
-    const authToken = localStorage.getItem("token");
     try {
       const res = await fetch(`${endpoint}/get-notes`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `bearer ${authToken}`,
+          Authorization: `bearer ${localStorage.getItem("s_tok")}`,
         },
       });
 
@@ -87,7 +86,7 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `bearer ${localStorage.getItem("token")}`,
+          Authorization: `bearer ${localStorage.getItem("s_tok")}`,
         },
         body: JSON.stringify({ selectedDocs }),
         // body: JSON.stringify({ selectedDocs: payload }),
@@ -149,7 +148,7 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${localStorage.getItem("s_tok")}`,
         },
         body: JSON.stringify({ text }),
         signal: controller.signal,
@@ -253,12 +252,11 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
     };
 
     try {
-      const authToken = localStorage.getItem("token");
       const res = await fetch(`${endpoint}/save-note`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `bearer ${authToken}`,
+          Authorization: `bearer ${localStorage.getItem("s_tok")}`,
         },
         body: JSON.stringify(updatedNote),
       });
@@ -295,7 +293,6 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
     setLoading(true);
 
     try {
-      const authToken = localStorage.getItem("token");
       const wrappedDocs = { selectedDocs };
 
       // Fetch content
@@ -303,7 +300,7 @@ const CardThree = ({ notes, setNotes, selectedDocs, onCollapseChange }) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `bearer ${authToken}`,
+          Authorization: `bearer ${localStorage.getItem("s_tok")}`,
         },
         body: JSON.stringify(wrappedDocs),
       });
